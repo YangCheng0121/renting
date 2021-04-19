@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package go.micro.srv.GetArea;
+
+option go_package = "proto;GetArea";
+
+service GetArea {
+	rpc GetArea(Request) returns (Response) {}
+	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
+	rpc PingPong(stream Ping) returns (stream Pong) {}
+}
+
+message Message {
+	string say = 1;
+}
+
+message Request {
+}
+
+message Response {
+	//返回错误码
+	string Errno = 1;
+	//返回错误信息
+	string Errmsg = 2;
+	//返回数据类型
+	message Address{
+		int32 aid = 1;
+		string aname = 2;
+	}
+	//用自定义类型返回的数组
+	repeated Address Data = 3;
+}
+
+message StreamingRequest {
+	int64 count = 1;
+}
+
+message StreamingResponse {
+	int64 count = 1;
+}
+
+message Ping {
+	int64 stroke = 1;
+}
+
+message Pong {
+	int64 stroke = 1;
+}
