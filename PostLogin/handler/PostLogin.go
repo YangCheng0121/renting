@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/beego/beego/v2/client/cache"
+	_ "github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"renting/web/models"

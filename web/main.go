@@ -39,6 +39,8 @@ func main() {
 	rou.GET("/api/v1.0/session",handler.GetSession)
 	// 注册
 	rou.POST("/api/v1.0/users",handler.PostRet)
+	// 登录
+	rou.POST("/api/v1.0/sessions", handler.PostLogin)
 
 	hd := srv.NewHandler(rou)
 

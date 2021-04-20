@@ -16,6 +16,7 @@ import (
 	GETIMAGECD "renting/GetImageCd/proto"
 	GETSESSION "renting/GetSession/proto"
 	GETSMSCD "renting/GetSmsCd/proto"
+	POSTLOGIN "renting/PostLogin/proto"
 	POSTRET "renting/PostRet/proto"
 	"renting/web/models"
 	"renting/web/utils"
@@ -324,4 +325,73 @@ func PostRet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	return
+}
+
+// 登录
+func PostLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 登陆 api/v1.0/sessions ----------------")
+	// 获取前端 post 请求发送的内容
+	var request map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	for key, value := range request {
+		logs.Info(key, value, reflect.TypeOf(value))
+	}
+
+	// 判断账号密码是否为空
+	if request["mobile"] == "" || request["password"] == "" {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_NODATA,
+			"errmsg": "信息有误请重新输入",
+		}
+		w.Header().Set("Content-Type", "application/json")
+
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		logs.Info("有数据为空")
+		return
+	}
+
+	// 创建连接
+	service := micro.NewService()
+	service.Init()
+
+	client := POSTLOGIN.NewPostLoginService("go.micro.srv.PostLogin", service.Client())
+
+	rsp, err := client.PostLogin(context.Background(), &POSTLOGIN.Request{
+		Password: request["password"].(string),
+		Mobile:   request["mobile"].(string),
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), 502)
+		logs.Info(err)
+		return
+	}
+
+	cookie, err := r.Cookie("userLogin")
+	if err != nil || "" == cookie.Value {
+		cookie := http.Cookie{Name: "userLogin", Value: rsp.SessionID, Path: "/", MaxAge: 600}
+		http.SetCookie(w, &cookie)
+	}
+	logs.Info(rsp.SessionID)
+	resp := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), 503)
+		logs.Info(err)
+		return
+	}
 }
