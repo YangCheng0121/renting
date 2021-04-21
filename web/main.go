@@ -34,13 +34,15 @@ func main() {
 	// 获取图片验证码
 	rou.GET("/api/v1.0/imagecode/:uuid", handler.GetImageCd)
 	// 获取短信验证码
-	rou.GET("/api/v1.0/smscode/:mobile",handler.GetSmsCd)
+	rou.GET("/api/v1.0/smscode/:mobile", handler.GetSmsCd)
 	// 获取session
-	rou.GET("/api/v1.0/session",handler.GetSession)
+	rou.GET("/api/v1.0/session", handler.GetSession)
 	// 注册
-	rou.POST("/api/v1.0/users",handler.PostRet)
+	rou.POST("/api/v1.0/users", handler.PostRet)
 	// 登录
 	rou.POST("/api/v1.0/sessions", handler.PostLogin)
+	//推出登陆
+	rou.DELETE("/api/v1.0/session", handler.DeleteSession)
 
 	hd := srv.NewHandler(rou)
 

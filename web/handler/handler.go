@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	DELETESESSION "renting/DeleteSession/proto"
 	GETAREA "renting/GetArea/proto"
 	GETIMAGECD "renting/GetImageCd/proto"
 	GETSESSION "renting/GetSession/proto"
@@ -394,4 +395,71 @@ func PostLogin(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		logs.Info(err)
 		return
 	}
+}
+
+// 退出
+func DeleteSession(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- DELETE  /api/v1.0/session DeleteSession() ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	client := DELETESESSION.NewDeleteSessionService("go.micro.srv.DeleteSession", service.Client())
+
+	// 获取session
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.DeleteSession(context.Background(), &DELETESESSION.Request{
+		Sessionid: userLogin.Value,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), 502)
+		logs.Info(err)
+		return
+	}
+	// 再次读取数据
+	cookie, err := r.Cookie("userLogin")
+
+	// 数据不为空则数据设置副的
+	if err != nil || "" == cookie.Value {
+		return
+	} else {
+		cookie := http.Cookie{Name: "userLogin", Path: "/", MaxAge: -1}
+		http.SetCookie(w, &cookie)
+	}
+
+	// 返回数据
+	resp := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+	}
+
+	//设置格式
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), 503)
+		logs.Info(err)
+		return
+	}
+
+	return
 }
