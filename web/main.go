@@ -41,8 +41,10 @@ func main() {
 	rou.POST("/api/v1.0/users", handler.PostRet)
 	// 登录
 	rou.POST("/api/v1.0/sessions", handler.PostLogin)
-	//推出登陆
+	// 退出登陆
 	rou.DELETE("/api/v1.0/session", handler.DeleteSession)
+	// 请求用户基本信息 GET /api/v1.0/user
+	rou.GET("/api/v1.0/user", handler.GetUserInfo)
 
 	hd := srv.NewHandler(rou)
 
