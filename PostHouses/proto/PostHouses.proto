@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package go.micro.srv.PostHouses;
 
-option go_package = "proto;GetUserHouses";
+option go_package = "proto;PostHouses";
 
 service PostHouses {
 	rpc PostHouses(Request) returns (Response) {}

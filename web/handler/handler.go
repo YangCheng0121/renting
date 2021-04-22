@@ -10,6 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"image"
 	"image/png"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -21,6 +22,7 @@ import (
 	GETUSERHOUSES "renting/GetUserHouses/proto"
 	GETUSERINFO "renting/GetUserInfo/proto"
 	POSTAVATAR "renting/PostAvatar/proto"
+	POSTHOUSES "renting/PostHouses/proto"
 	POSTLOGIN "renting/PostLogin/proto"
 	POSTRET "renting/PostRet/proto"
 	POSTUSERAUTH "renting/PostUserAuth/proto"
@@ -903,6 +905,65 @@ func GetUserHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	// encode and write the response as json
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), 501)
+		return
+	}
+}
+
+// 发布房源信息
+func PostHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- PostHouses 发布房源信息 /api/v1.0/houses ------------------")
+
+	// 获取前端post请求发送的内容
+	body, _ := ioutil.ReadAll(r.Body)
+
+	// 获取cookie
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+		//设置回传格式
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	// 创建连接
+	service := micro.NewService()
+	service.Init()
+
+	client := POSTHOUSES.NewPostHousesService("go.micro.srv.PostHouses", service.Client())
+
+	rsp, err := client.PostHouses(context.Background(), &POSTHOUSES.Request{
+		Sessionid: userLogin.Value,
+		Max:       body,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 502)
+		logs.Info(err)
+		return
+	}
+	/* 得到插入房源信息表的 id */
+	houseIdMap := make(map[string]interface{})
+	houseIdMap["house_id"] = int(rsp.House_Id)
+
+	resp := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   houseIdMap,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), 503)
+		logs.Info(err)
 		return
 	}
 }

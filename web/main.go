@@ -56,6 +56,8 @@ func main() {
 
 	// 请求当前用户已发布房源信息  GET
 	rou.GET("/api/v1.0/user/houses", handler.GetUserHouses)
+	// 发布房源信息 POST
+	rou.POST("/api/v1.0/houses", handler.PostHouses)
 
 	hd := srv.NewHandler(rou)
 
