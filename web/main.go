@@ -51,6 +51,8 @@ func main() {
 	rou.PUT("/api/v1.0/user/name", handler.PutUserInfo)
 	// 实名认证检查 GET
 	rou.GET("/api/v1.0/user/auth", handler.GetUserAuth)
+	// 实名认证 POST
+	rou.POST("/api/v1.0/user/auth", handler.PostUserAuth)
 
 	hd := srv.NewHandler(rou)
 

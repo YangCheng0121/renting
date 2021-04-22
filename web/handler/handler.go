@@ -21,6 +21,7 @@ import (
 	POSTAVATAR "renting/PostAvatar/proto"
 	POSTLOGIN "renting/PostLogin/proto"
 	POSTRET "renting/PostRet/proto"
+	POSTUSERAUTH "renting/PostUserAuth/proto"
 	PUTUSERINFO "renting/PutUserInfo/proto"
 	"renting/web/models"
 	"renting/web/utils"
@@ -711,7 +712,7 @@ func PutUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 }
 
-// 检查实名认证
+// 检查实名认证 GetUserAuth
 func GetUserAuth(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	logs.Info("----------------GetUserInfo  获取用户信息   /api/v1.0/user ------------------")
 
@@ -778,4 +779,63 @@ func GetUserAuth(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	return
+}
+
+// 实名认证 PostUserAuth
+func PostUserAuth(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 实名认证 PostUserAuth  api/v1.0/user/auth ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// 获取前端发送的数据
+	var request map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// call the backend service
+	client := POSTUSERAUTH.NewPostUserAuthService("go.micro.srv.PostUserAuth", service.Client())
+
+	// 获取cookie
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.PostUserAuth(context.Background(), &POSTUSERAUTH.Request{
+		Sessionid: userLogin.Value,
+		RealName:  request["real_name"].(string),
+		IdCard:    request["id_card"].(string),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+	}
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
+		return
+	}
 }
