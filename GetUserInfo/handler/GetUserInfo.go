@@ -50,6 +50,12 @@ func (e *GetUserInfo) GetUserInfo(ctx context.Context, req *pb.Request, rsp *pb.
 
 	// 获取到当前登录用户的user_id
 	valueId, _ := bm.Get(context.TODO(), sessionIdUserId)
+	if valueId == nil {
+		logs.Info("缓存获取失败", err)
+		rsp.Errno = utils.RECODE_DBERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
 
 	// 数据格式转换
 	id := int(valueId.([]uint8)[0])

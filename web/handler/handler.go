@@ -649,7 +649,7 @@ func PostAvatar(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 // 更新用户名 PutUserInfo
 func PutUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	logs.Info("---------------- 更新用户名 Putuserinfo /api/v1.0/user/name ------------------")
+	logs.Info("---------------- 更新用户名 PutUserInfo /api/v1.0/user/name ------------------")
 
 	// 创建服务
 	service := micro.NewService()
@@ -709,4 +709,73 @@ func PutUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		http.Error(w, err.Error(), 501)
 		return
 	}
+}
+
+// 检查实名认证
+func GetUserAuth(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("----------------GetUserInfo  获取用户信息   /api/v1.0/user ------------------")
+
+	// 初始化服务
+	service := micro.NewService()
+	service.Init()
+
+	// 创建句柄
+	client := GETUSERINFO.NewGetUserInfoService("go.micro.srv.GetUserInfo", service.Client())
+
+	// 获取用户的登录信息
+	userLogin, err := r.Cookie("userLogin")
+
+	// 判断是否成功不成功就直接返回
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	// 成功就将信息发送给前端
+	rsp, err := client.GetUserInfo(context.Background(), &GETUSERINFO.Request{
+		Sessionid: userLogin.Value,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 502)
+		logs.Info(err)
+		return
+	}
+
+	// 准备1个数据的map
+	data := make(map[string]interface{})
+	// 将信息发送给前端
+	data["user_id"] = int(rsp.UserId)
+	data["name"] = rsp.Name
+	data["mobile"] = rsp.Mobile
+	data["real_name"] = rsp.RealName
+	data["id_card"] = rsp.IdCard
+	data["avatar_url"] = rsp.AvatarUrl
+
+	resp := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+
+	// 设置格式
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), 503)
+		logs.Info(err)
+		return
+	}
+	return
 }

@@ -49,6 +49,8 @@ func main() {
 	rou.POST("/api/v1.0/user/avatar", handler.PostAvatar)
 	// 请求更新用户名 PUT
 	rou.PUT("/api/v1.0/user/name", handler.PutUserInfo)
+	// 实名认证检查 GET
+	rou.GET("/api/v1.0/user/auth", handler.GetUserAuth)
 
 	hd := srv.NewHandler(rou)
 
