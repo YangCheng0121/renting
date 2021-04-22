@@ -11,27 +11,23 @@ import (
 	"reflect"
 	"renting/web/models"
 	"renting/web/utils"
-	"time"
 
-	pb "renting/PutUserInfo/proto"
+	pb "renting/GetUserHouses/proto"
 )
 
-type PutUserInfo struct{}
+type GetUserHouses struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
-func (e *PutUserInfo) PutUserInfo(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
+func (e *GetUserHouses) GetUserHouses(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	// 打印被调用的函数
-	logs.Info("---------------- PUT  /api/v1.0/user/name PutUserInfo() ------------------")
+	logs.Info("---------------- 获取当前用户所发布的房源 GetUserHouses /api/v1.0/user/houses ----------------")
 
 	// 创建返回空间
 	rsp.Errno = utils.RECODE_OK
 	rsp.Errmsg = utils.RecodeText(rsp.Errno)
 
-	/* 得到用户发送过来的name */
-	logs.Info(rsp.Username)
-
-	/* 从从sessionId 获取当前的 userId */
-	// 连接redis
+	/* 通过session 获取我们当前登陆用户的user_id */
+	// 构建连接缓存的数据
 	redisConfigMap := map[string]string{
 		"key":   utils.G_server_name,
 		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
@@ -39,7 +35,6 @@ func (e *PutUserInfo) PutUserInfo(ctx context.Context, req *pb.Request, rsp *pb.
 	}
 	logs.Info(redisConfigMap)
 	redisConfig, _ := json.Marshal(redisConfigMap)
-	logs.Info(string(redisConfig))
 
 	// 连接redis数据库 创建句柄
 	bm, err := cache.NewCache("redis", string(redisConfig))
@@ -49,9 +44,9 @@ func (e *PutUserInfo) PutUserInfo(ctx context.Context, req *pb.Request, rsp *pb.
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 		return nil
 	}
-	// 拼接key
+	//拼接key
 	sessionIdUserId := req.Sessionid + "user_id"
-	// 获取userId
+
 	valueId, _ := bm.Get(context.TODO(), sessionIdUserId)
 	if valueId == nil {
 		logs.Info("获取登录缓存失败", err)
@@ -63,33 +58,33 @@ func (e *PutUserInfo) PutUserInfo(ctx context.Context, req *pb.Request, rsp *pb.
 	id := int(valueId.([]uint8)[0])
 	logs.Info(id, reflect.TypeOf(id))
 
-	// 创建对象
-	user := models.User{Id: id, Name: req.Username}
-	/* 更新对应 user_id 的 name 字段的内容 */
-	// 创建数据库句柄
+	/* 通过 user_id 获取到当前用户所发布的房源信息 */
+	var houseList []models.House
+
+	// 创建数据句柄
 	o := orm.NewOrm()
-	// 更新
-	_, err = o.Update(&user, "name")
+	qs := o.QueryTable("house")
+
+	num, err := qs.Filter("user__id", id).All(&houseList)
 	if err != nil {
 		rsp.Errno = utils.RECODE_DBERR
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
-		return nil
+	}
+	if num == 0 {
+		rsp.Errno = utils.RECODE_NODATA
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 	}
 
-	/* 更新session user_id */
-	sessionIdName := req.Sessionid + "name"
-	_ = bm.Put(context.TODO(), sessionIdUserId, string(user.Id), time.Second*600)
-	/* 更新session name */
-	_ = bm.Put(context.TODO(), sessionIdName, string(user.Name), time.Second*600)
+	/* 成功返回数据给前端 */
+	house, err := json.Marshal(houseList)
+	rsp.Mix = house
 
-	/* 成功返回数据 */
-	rsp.Username = user.Name
 	return nil
 }
 
 // Stream is a server side stream handler called via client.Stream or the generated client code
-func (e *PutUserInfo) Stream(ctx context.Context, req *pb.StreamingRequest, stream pb.PutUserInfo_StreamStream) error {
-	log.Infof("Received PutUserInfo.Stream request with count: %d", req.Count)
+func (e *GetUserHouses) Stream(ctx context.Context, req *pb.StreamingRequest, stream pb.GetUserHouses_StreamStream) error {
+	log.Infof("Received GetUserHouses.Stream request with count: %d", req.Count)
 
 	for i := 0; i < int(req.Count); i++ {
 		log.Infof("Responding: %d", i)
@@ -104,7 +99,7 @@ func (e *PutUserInfo) Stream(ctx context.Context, req *pb.StreamingRequest, stre
 }
 
 // PingPong is a bidirectional stream handler called via client.Stream or the generated client code
-func (e *PutUserInfo) PingPong(ctx context.Context, stream pb.PutUserInfo_PingPongStream) error {
+func (e *GetUserHouses) PingPong(ctx context.Context, stream pb.GetUserHouses_PingPongStream) error {
 	for {
 		req, err := stream.Recv()
 		if err != nil {

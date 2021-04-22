@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/afocus/captcha"
 	"github.com/asim/go-micro/v3"
 	"github.com/beego/beego/v2/core/logs"
@@ -17,6 +18,7 @@ import (
 	GETIMAGECD "renting/GetImageCd/proto"
 	GETSESSION "renting/GetSession/proto"
 	GETSMSCD "renting/GetSmsCd/proto"
+	GETUSERHOUSES "renting/GetUserHouses/proto"
 	GETUSERINFO "renting/GetUserInfo/proto"
 	POSTAVATAR "renting/PostAvatar/proto"
 	POSTLOGIN "renting/PostLogin/proto"
@@ -832,6 +834,71 @@ func PostUserAuth(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		"errno":  rsp.Errno,
 		"errmsg": rsp.Errmsg,
 	}
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
+		return
+	}
+}
+
+// 获取当前用户所发布的资源 GetUserHouses
+func GetUserHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 获取当前用户所发布的房源 GetUserHouses /api/v1.0/user/houses ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// call the backend service
+	client := GETUSERHOUSES.NewGetUserHousesService("go.micro.srv.GetUserHouses", service.Client())
+
+	// 获取cookie
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.GetUserHouses(context.TODO(), &GETUSERHOUSES.Request{
+		Sessionid: userLogin.Value,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	var houseList []models.House
+	_ = json.Unmarshal(rsp.Mix, &houseList)
+
+	var houses []interface{}
+	for _, houseInfo := range houseList {
+		fmt.Printf("house.user = %+v\n", houseInfo.Id)
+		fmt.Printf("house.area = %+v\n", houseInfo.Area)
+		houses = append(houses, houseInfo.To_house_info())
+	}
+
+	dataMap := make(map[string]interface{})
+	dataMap["houses"] = houses
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   dataMap,
+	}
+	w.Header().Set("Content-Type", "application/json")
 
 	// encode and write the response as json
 	if err := json.NewEncoder(w).Encode(response); err != nil {

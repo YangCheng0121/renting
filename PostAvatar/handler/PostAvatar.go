@@ -86,7 +86,12 @@ func (e *PostAvatar) PostAvatar(ctx context.Context, req *pb.Request, rsp *pb.Re
 
 	// 获得当前用户的userId
 	valueId, _ := bm.Get(context.TODO(), sessionIdUserId)
-	logs.Info(valueId, reflect.TypeOf(valueId))
+	if valueId == nil {
+		logs.Info("获取登录缓存失败", err)
+		rsp.Errno = utils.RECODE_SESSIONERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
 
 	id := int(valueId.([]uint8)[0])
 	logs.Info(id, reflect.TypeOf(id))

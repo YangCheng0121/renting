@@ -54,6 +54,9 @@ func main() {
 	// 实名认证 POST
 	rou.POST("/api/v1.0/user/auth", handler.PostUserAuth)
 
+	// 请求当前用户已发布房源信息  GET
+	rou.GET("/api/v1.0/user/houses", handler.GetUserHouses)
+
 	hd := srv.NewHandler(rou)
 
 	if err := srv.Handle(hd); err != nil {
