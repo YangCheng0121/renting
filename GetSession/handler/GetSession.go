@@ -3,13 +3,12 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"github.com/asim/go-micro/v3/util/log"
 	"github.com/beego/beego/v2/client/cache"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/garyburd/redigo/redis"
 	"reflect"
 	"renting/web/utils"
-
-	log "github.com/micro/micro/v3/service/logger"
 
 	pb "renting/GetSession/proto"
 )

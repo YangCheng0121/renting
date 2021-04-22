@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package go . micro. srv. GetUserInfo;
+package go . micro. srv. PostAvatar;
 
-option go_package = "proto;GetUserInfo";
+option go_package = "proto;PostAvatar";
 
-service GetUserInfo {
-  rpc GetUserInfo (Request) returns (Response) {}
+service PostAvatar {
+  rpc PostAvatar (Request) returns (Response) {}
   rpc Stream (StreamingRequest) returns (stream StreamingResponse) {}
   rpc PingPong (stream Ping) returns (stream Pong) {}
 }
@@ -15,7 +15,14 @@ message Message {
 }
 
 message Request {
-  string Sessionid = 1;
+  //二进制图片
+  bytes Avatar     = 1;
+  //sessionid
+  string Sessionid = 2;
+  //文件大小
+  int64 filesize   = 3;
+  //文件名字
+  string filename  = 4;
 }
 
 message Response {
@@ -23,18 +30,8 @@ message Response {
   string Errno      = 1;
   //错误信息
   string Errmsg     = 2;
-  //用户id
-  int64 User_id     = 3;
-  //用户名
-  string Name       = 4;
-  //手机号
-  string Mobile     = 5;
-  //真实姓名
-  string Real_name  = 6;
-  //身份证号
-  string Id_card    = 7;
-  //头衔地址
-  string Avatar_url = 8;
+  //回传的url
+  string Avatar_url = 3;
 }
 
 message StreamingRequest {

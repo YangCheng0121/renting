@@ -3,12 +3,12 @@ package subscriber
 import (
 	"context"
 	"github.com/asim/go-micro/v3/util/log"
-	pb "renting/GetUserInfo/proto"
+	pb "renting/GetSession/proto"
 )
 
-type GetUserInfo struct{}
+type GetSession struct{}
 
-func (e *GetUserInfo) Handle(ctx context.Context, msg *pb.Message) error {
+func (e *GetSession) Handle(ctx context.Context, msg *pb.Message) error {
 	log.Log("Handler Received message: ", msg.Say)
 	return nil
 }

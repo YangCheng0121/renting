@@ -3,10 +3,10 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"github.com/asim/go-micro/v3/util/log"
 	"github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/core/logs"
-	log "github.com/micro/micro/v3/service/logger"
 	pb "renting/DeleteSession/proto"
 	"renting/web/utils"
 )

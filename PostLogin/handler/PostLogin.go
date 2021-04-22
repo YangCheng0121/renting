@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"github.com/asim/go-micro/v3/util/log"
 	"github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/client/orm"
@@ -12,8 +13,6 @@ import (
 	"renting/web/models"
 	"renting/web/utils"
 	"time"
-
-	log "github.com/micro/micro/v3/service/logger"
 
 	pb "renting/PostLogin/proto"
 )

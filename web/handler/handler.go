@@ -18,6 +18,7 @@ import (
 	GETSESSION "renting/GetSession/proto"
 	GETSMSCD "renting/GetSmsCd/proto"
 	GETUSERINFO "renting/GetUserInfo/proto"
+	POSTAVATAR "renting/PostAvatar/proto"
 	POSTLOGIN "renting/PostLogin/proto"
 	POSTRET "renting/PostRet/proto"
 	"renting/web/models"
@@ -529,5 +530,118 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		logs.Info(err)
 		return
 	}
+	return
+}
+
+// 上传用户头像 PostAvatar
+func PostAvatar(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 上传用户头像 PostAvatar /api/v1.0/user/avatar ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// 创建句柄
+	client := POSTAVATAR.NewPostAvatarService("go.micro.srv.PostAvatar", service.Client())
+
+	// 查看登录信息
+	userLogin, err := r.Cookie("userLogin")
+
+	// 如果没有登录就返回错误
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	// 接受前端发送过来的文集
+	file, handler, err := r.FormFile("avatar")
+
+	// 判断是否接受成功
+	if err != nil {
+		logs.Info("PostPpAvatar   c.GetFile(avatar) err", err)
+
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_IOERR,
+			"errmsg": utils.RecodeText(utils.RECODE_IOERR),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+	// 打印基本信息
+	logs.Info(file, handler)
+	logs.Info("文件大小", handler.Size)
+	logs.Info("文件名", handler.Filename)
+
+	// 二进制的空间用来存储文件
+	fileBuffer := make([]byte, handler.Size)
+
+	// 将文件读取到 fileBuffer 里
+	_, err = file.Read(fileBuffer)
+	if err != nil {
+		logs.Info("PostUpAvatar   file.Read(fileBuffer) err", err)
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_IOERR,
+			"errmsg": utils.RecodeText(utils.RECODE_IOERR),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	// 调用函数传入数据
+	rsp, err := client.PostAvatar(context.Background(), &POSTAVATAR.Request{
+		Sessionid: userLogin.Value,
+		Filename:  handler.Filename,
+		Filesize:  handler.Size,
+		Avatar:    fileBuffer,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 502)
+		logs.Info(err)
+		return
+	}
+
+	// 准备回传数据空间
+	data := make(map[string]interface{})
+	// url拼接回传数据
+	data["avatar_url"] = rsp.AvatarUrl
+
+	resp := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), 503)
+		logs.Info(err)
+		return
+	}
+
 	return
 }

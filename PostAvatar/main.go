@@ -3,13 +3,13 @@ package main
 import (
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
-	"renting/PostRet/handler"
-	pb "renting/PostRet/proto"
-	"renting/PostRet/subscriber"
+	"renting/PostAvatar/handler"
+	pb "renting/PostAvatar/proto"
+	"renting/PostAvatar/subscriber"
 )
 
 const (
-	ServerName = "go.micro.srv.PostRet" // server name
+	ServerName = "go.micro.srv.PostAvatar" // server name
 )
 
 func main() {
@@ -20,12 +20,12 @@ func main() {
 	)
 
 	// Register handler
-	if err := pb.RegisterPostRetHandler(service.Server(), new(handler.PostRet)); err != nil {
+	if err := pb.RegisterPostAvatarHandler(service.Server(), new(handler.PostAvatar)); err != nil {
 		logger.Fatal(err)
 	}
 
 	// Register Struct as Subscriber
-	if err := micro.RegisterSubscriber(ServerName, service.Server(), new(subscriber.PostRet)); err != nil {
+	if err := micro.RegisterSubscriber(ServerName, service.Server(), new(subscriber.PostAvatar)); err != nil {
 		logger.Fatal(err)
 	}
 
