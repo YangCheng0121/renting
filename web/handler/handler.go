@@ -21,6 +21,7 @@ import (
 	POSTAVATAR "renting/PostAvatar/proto"
 	POSTLOGIN "renting/PostLogin/proto"
 	POSTRET "renting/PostRet/proto"
+	PUTUSERINFO "renting/PutUserInfo/proto"
 	"renting/web/models"
 	"renting/web/utils"
 )
@@ -644,4 +645,68 @@ func PostAvatar(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	return
+}
+
+// 更新用户名 PutUserInfo
+func PutUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 更新用户名 Putuserinfo /api/v1.0/user/name ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// 接受前端发送内容
+	var request map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// 调用服务
+	client := PUTUSERINFO.NewPutUserInfoService("go.micro.srv.PutUserInfo", service.Client())
+
+	// 获取用户登录信息
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.PutUserInfo(context.Background(), &PUTUSERINFO.Request{
+		Sessionid: userLogin.Value,
+		Username:  request["name"].(string),
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// 接受回发数据
+	data := make(map[string]interface{})
+	data["name"] = rsp.Username
+
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// 返回前端
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
+		return
+	}
 }

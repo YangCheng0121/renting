@@ -45,8 +45,10 @@ func main() {
 	rou.DELETE("/api/v1.0/session", handler.DeleteSession)
 	// 请求用户基本信息 GET /api/v1.0/user
 	rou.GET("/api/v1.0/user", handler.GetUserInfo)
-	//上传头像 POST
+	// 上传头像 POST
 	rou.POST("/api/v1.0/user/avatar", handler.PostAvatar)
+	// 请求更新用户名 PUT
+	rou.PUT("/api/v1.0/user/name", handler.PutUserInfo)
 
 	hd := srv.NewHandler(rou)
 
