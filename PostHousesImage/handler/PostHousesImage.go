@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"github.com/asim/go-micro/v3/util/log"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
@@ -40,7 +39,10 @@ func (e *PostHousesImage) PostHousesImage(ctx context.Context, req *pb.Request, 
 	}
 
 	if fileType != "img" {
-		return errors.New("不支持文件上传")
+		logs.Info("不支持该文件上传")
+		rsp.Errno = utils.RECODE_IOERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
 	}
 
 	err := ioutil.WriteFile(req.Filename, req.Image, 0666)
@@ -54,7 +56,10 @@ func (e *PostHousesImage) PostHousesImage(ctx context.Context, req *pb.Request, 
 	// 上传数据
 	houseImageFile, err := models.UploadByFileName(req.Filename)
 	if err != nil {
-		return err
+		logs.Info("文件读写错误", err)
+		rsp.Errno = utils.RECODE_IOERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
 	}
 	logs.Info("houseImageFile:", houseImageFile)
 	defer os.Remove(req.Filename)

@@ -981,7 +981,7 @@ func PostHousesImage(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	client := POSTHOUSESIMAGE.NewPostHousesImageService("go.micro.srv.PostHousesImage", service.Client())
 	// 获取houseId
 	houseId := ps.ByName("id")
-	// 获取seesionId
+	// 获取sessionId
 	userLogin, err := r.Cookie("userLogin")
 	if err != nil {
 		resp := map[string]interface{}{
@@ -1021,7 +1021,7 @@ func PostHousesImage(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 	// 二进制的空间用来存储文件
 	fileBuffer := make([]byte, handler.Size)
-	//将文件读取到 fileBuffer 里
+	// 将文件读取到 fileBuffer 里
 	_, err = file.Read(fileBuffer)
 	if err != nil {
 		resp := map[string]interface{}{
@@ -1050,7 +1050,7 @@ func PostHousesImage(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
-	//准备返回值
+	// 准备返回值
 	data := make(map[string]interface{})
 	data["url"] = utils.AddDomain2Url(rsp.Url)
 	// 返回数据map

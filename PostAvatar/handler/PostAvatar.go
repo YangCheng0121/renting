@@ -50,6 +50,7 @@ func (e *PostAvatar) PostAvatar(ctx context.Context, req *pb.Request, rsp *pb.Re
 
 	err := ioutil.WriteFile(req.Filename, req.Avatar, 0666)
 	if err != nil {
+		logs.Info("文件读写错误", err)
 		rsp.Errno = utils.RECODE_IOERR
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 		return nil
