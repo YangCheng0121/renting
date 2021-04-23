@@ -45,12 +45,14 @@ func (e *PostAvatar) PostAvatar(ctx context.Context, req *pb.Request, rsp *pb.Re
 	}
 
 	if fileType != "img" {
-		return errors.New("不知该文件上传")
+		return errors.New("不支持文件上传")
 	}
 
 	err := ioutil.WriteFile(req.Filename, req.Avatar, 0666)
 	if err != nil {
-		return err
+		rsp.Errno = utils.RECODE_IOERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
 	}
 
 	// group1 group1/M00/00/00/wKgLg1t08pmANXH1AAaInSze-cQ589.jpg
@@ -97,7 +99,7 @@ func (e *PostAvatar) PostAvatar(ctx context.Context, req *pb.Request, rsp *pb.Re
 	logs.Info(id, reflect.TypeOf(id))
 
 	// 创建表对象
-	user := models.User{Id: id, Avatar_url: avatar.Path}
+	user := models.User{Id: id, Avatar_url: utils.AddDomain2Url(avatar.Path)}
 	/* 将当前 fastdfs-url 存储到我们当前用户的表中 */
 	o := orm.NewOrm()
 	// 将图片的地址存入表中
@@ -107,7 +109,7 @@ func (e *PostAvatar) PostAvatar(ctx context.Context, req *pb.Request, rsp *pb.Re
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 	}
 	// 回传图片地址
-	rsp.AvatarUrl = avatar.Path
+	rsp.AvatarUrl = utils.AddDomain2Url(avatar.Path)
 	return nil
 }
 

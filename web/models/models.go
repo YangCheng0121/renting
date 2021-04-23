@@ -93,7 +93,7 @@ func (this *House) To_one_house_desc() interface{} {
 	//房屋图片
 	img_urls := []string{}
 	for _, img_url := range this.Images {
-		img_urls = append(img_urls, utils.AddDomain2Url(img_url.Url))
+		img_urls = append(img_urls, img_url.Url)
 	}
 	house_desc["img_urls"] = img_urls
 

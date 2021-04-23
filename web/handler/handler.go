@@ -23,6 +23,7 @@ import (
 	GETUSERINFO "renting/GetUserInfo/proto"
 	POSTAVATAR "renting/PostAvatar/proto"
 	POSTHOUSES "renting/PostHouses/proto"
+	POSTHOUSESIMAGE "renting/PostHousesImage/proto"
 	POSTLOGIN "renting/PostLogin/proto"
 	POSTRET "renting/PostRet/proto"
 	POSTUSERAUTH "renting/PostUserAuth/proto"
@@ -964,6 +965,105 @@ func PostHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, err.Error(), 503)
 		logs.Info(err)
+		return
+	}
+}
+
+// 发送房屋图片
+func PostHousesImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	logs.Info("---------------- 发送房屋图片PostHousesImage  /api/v1.0/houses/:id/images ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// call the backend service
+	client := POSTHOUSESIMAGE.NewPostHousesImageService("go.micro.srv.PostHousesImage", service.Client())
+	// 获取houseId
+	houseId := ps.ByName("id")
+	// 获取seesionId
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	file, handler, err := r.FormFile("house_image")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_IOERR,
+			"errmsg": utils.RecodeText(utils.RECODE_IOERR),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	logs.Info(file, handler)
+	logs.Info("文件大小", handler.Size)
+	logs.Info("文件名", handler.Filename)
+
+	// 二进制的空间用来存储文件
+	fileBuffer := make([]byte, handler.Size)
+	//将文件读取到 fileBuffer 里
+	_, err = file.Read(fileBuffer)
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_IOERR,
+			"errmsg": utils.RecodeText(utils.RECODE_IOERR),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.PostHousesImage(context.Background(), &POSTHOUSESIMAGE.Request{
+		Sessionid: userLogin.Value,
+		Id:        houseId,
+		Image:     fileBuffer,
+		Filesize:  handler.Size,
+		Filename:  handler.Filename,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	//准备返回值
+	data := make(map[string]interface{})
+	data["url"] = utils.AddDomain2Url(rsp.Url)
+	// 返回数据map
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// 回发数据
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
 		return
 	}
 }

@@ -29,14 +29,14 @@ type File struct {
 
 // 通过文件名的方式进行上传
 func UploadByFileName(fileExtName string) (file File, err error) {
-	fastDfsConf, err := config.NewConfig("ini", "./conf/fastdfs.conf")
+	appConf, err := config.NewConfig("ini", "./conf/app.conf")
 	if err != nil {
 		logs.Error(err)
 		return
 	}
 
-	fastDfsHost, _ := fastDfsConf.String("fast_dfs_host")
-	fastDfsPort, _ := fastDfsConf.String("fast_dfs_port")
+	fastDfsHost, _ := appConf.String("fastdfsaddr")
+	fastDfsPort, _ := appConf.String("fastdfsport")
 
 	url := Prefix + fastDfsHost + ":" + fastDfsPort + Group
 

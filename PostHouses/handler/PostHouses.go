@@ -3,7 +3,11 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"github.com/beego/beego/v2/client/cache"
+	_ "github.com/beego/beego/v2/client/cache/redis"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"reflect"
 	"renting/web/models"
 	"renting/web/utils"
 	"strconv"
@@ -66,6 +70,71 @@ func (e *PostHouses) PostHouses(ctx context.Context, req *pb.Request, rsp *pb.Re
 		fac := &models.Facility{Id: fid}
 		facility = append(facility, fac)
 	}
+
+	//	"area_id":"5"，地区
+	areaId, _ := strconv.Atoi(requestMap["area_id"].(string))
+	area := models.Area{Id: areaId}
+	house.Area = &area
+
+	// 获的 userId
+	// 构建连接缓存的数据
+	redisConfigMap := map[string]string{
+		"key":   utils.G_server_name,
+		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
+		"dbNum": utils.G_redis_dbnum,
+	}
+	logs.Info(redisConfigMap)
+	redisConfig, _ := json.Marshal(redisConfigMap)
+
+	// 连接redis数据库 创建句柄
+	bm, err := cache.NewCache("redis", string(redisConfig))
+	if err != nil {
+		logs.Info("缓存创建失败", err)
+		rsp.Errno = utils.RECODE_DBERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
+	sessionIdUserId := req.Sessionid + "user_id"
+
+	valueId, _ := bm.Get(context.Background(), sessionIdUserId)
+	if valueId == nil {
+		logs.Info("获取缓存失败", err)
+		rsp.Errno = utils.RECODE_DBERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
+
+	userId := int(valueId.([]uint8)[0])
+	logs.Info(userId, reflect.TypeOf(userId))
+
+	// 添加user信息
+	user := models.User{Id: userId}
+	house.User = &user
+
+	// 创建数据库句柄
+	o := orm.NewOrm()
+	houseId, err := o.Insert(&house)
+	if err != nil {
+		rsp.Errno = utils.RECODE_DBERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
+	logs.Info(houseId, reflect.TypeOf(houseId), house.Id)
+
+	/* 插入房源与设施信息的多对多表中 */
+	m2m := o.QueryM2M(&house, "Facilities")
+	num, err := m2m.Add(facility)
+	if err != nil {
+		rsp.Errno = utils.RECODE_DBERR
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
+	if num == 0 {
+		rsp.Errno = utils.RECODE_NODATA
+		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		return nil
+	}
+	rsp.House_Id = int64(house.Id)
 	return nil
 }
 

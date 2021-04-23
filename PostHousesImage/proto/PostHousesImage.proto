@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package go.micro.srv.PostHousesImage;
+
+option go_package = "proto;PostHousesImage";
+
+service PostHousesImage {
+	rpc PostHousesImage(Request) returns (Response) {}
+	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
+	rpc PingPong(stream Ping) returns (stream Pong) {}
+}
+
+message Message {
+	string say = 1;
+}
+
+message Request {
+	//sessionid
+	string Sessionid = 1;
+	//图片
+	bytes Image =2;
+	//房屋 id
+	string Id =3 ;
+	//图片信息
+	int64 Filesize =4;
+	//图片名
+	string Filename =5 ;
+}
+
+message Response {
+	string Errno = 1;
+	string Errmsg = 2;
+	//返回url
+	string Url = 3;
+}
+
+message StreamingRequest {
+	int64 count = 1;
+}
+
+message StreamingResponse {
+	int64 count = 1;
+}
+
+message Ping {
+	int64 stroke = 1;
+}
+
+message Pong {
+	int64 stroke = 1;
+}
