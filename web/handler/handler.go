@@ -32,6 +32,7 @@ import (
 	POSTORDERS "renting/PostOrders/proto"
 	POSTRET "renting/PostRet/proto"
 	POSTUSERAUTH "renting/PostUserAuth/proto"
+	PUTCOMMENT "renting/PutComment/proto"
 	PUTORDERS "renting/PutOrders/proto"
 	PUTUSERINFO "renting/PutUserInfo/proto"
 	"renting/web/models"
@@ -1398,6 +1399,64 @@ func PutOrders(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// encode and write the response as json
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), 504)
+		return
+	}
+}
+
+// 用户评价订单
+func PutComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	logs.Info("PutComment  用户评价 /api/v1.0/orders/:id/comment")
+	// decode the incoming request as json
+	var request map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	service := micro.NewService()
+	service.Init()
+	// call the backend service
+	client := PUTCOMMENT.NewPutCommentService("go.micro.srv.PutComment", service.Client())
+
+	//获取cookie
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.PutComment(context.TODO(), &PUTCOMMENT.Request{
+
+		Sessionid: userLogin.Value,
+		Comment:   request["comment"].(string),
+		OrderId:   ps.ByName("id"),
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
 		return
 	}
 }

@@ -74,6 +74,10 @@ func main() {
 	//put房东同意/拒绝订单
 	//api/v1.0/orders/:id/status
 	rou.PUT("/api/v1.0/orders/:id/status", handler.PutOrders)
+	//PUT 用户评价订单信请求
+	//api/v1.0/orders/:id/comment
+	//api/v1.0/orders/1/comment
+	rou.PUT("/api/v1.0/orders/:id/comment", handler.PutComment)
 
 	hd := srv.NewHandler(rou)
 
