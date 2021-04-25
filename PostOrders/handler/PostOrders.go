@@ -139,7 +139,7 @@ func (e *PostOrders) PostOrders(ctx context.Context, req *pb.Request, rsp *pb.Re
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 		return nil
 	}
-	//10返回order_id
+	// 10返回order_id
 	_ = bm.Put(context.TODO(), sessionIdUserId, string(userId), time.Second*7200)
 	rsp.OrderId = int64(order.Id)
 	return nil

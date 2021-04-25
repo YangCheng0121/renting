@@ -184,7 +184,7 @@ type OrderHouse struct {
 }
 
 //处理订单信息
-func (this *OrderHouse) To_order_info() interface{} {
+func (this *OrderHouse) ToOrderInfo() interface{} {
 	orderInfo := map[string]interface{}{
 		"order_id":   this.Id,
 		"title":      this.House.Title,

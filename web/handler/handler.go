@@ -24,6 +24,7 @@ import (
 	GETSMSCD "renting/GetSmsCd/proto"
 	GETUSERHOUSES "renting/GetUserHouses/proto"
 	GETUSERINFO "renting/GetUserInfo/proto"
+	GETUSERORDER "renting/GetUserOrder/proto"
 	POSTAVATAR "renting/PostAvatar/proto"
 	POSTHOUSES "renting/PostHouses/proto"
 	POSTHOUSESIMAGE "renting/PostHousesImage/proto"
@@ -1277,6 +1278,66 @@ func PostOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
+		return
+	}
+}
+
+// 获取订单
+func GetUserOrder(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- /api/v1.0/user/orders  GetUserOrder 获取订单 ----------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// call the backend service
+	client := GETUSERORDER.NewGetUserOrderService("go.micro.srv.GetUserOrder", service.Client())
+
+	// 获取cookie
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+		}
+		return
+	}
+
+	// 获取role
+	role := r.URL.Query()["role"][0] // role
+
+	rsp, err := client.GetUserOrder(context.Background(), &GETUSERORDER.Request{
+		Sessionid: userLogin.Value,
+		Role:      role,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	var orderList []interface{}
+	_ = json.Unmarshal(rsp.Orders, &orderList)
+
+	data := map[string]interface{}{}
+	data["orders"] = orderList
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	// encode the write the response as json
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), 501)
 		return
