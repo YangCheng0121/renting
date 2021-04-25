@@ -3,7 +3,7 @@ package subscriber
 import (
 	"context"
 	"github.com/asim/go-micro/v3/util/log"
-	pb "renting/PostLogin/proto"
+	pb "renting/PostOrders/proto"
 )
 
 type PostOrders struct{}

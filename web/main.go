@@ -71,6 +71,9 @@ func main() {
 	rou.POST("/api/v1.0/orders", handler.PostOrders)
 	// get 查看房东/租客订单信息请求
 	rou.GET("/api/v1.0/user/orders", handler.GetUserOrder)
+	//put房东同意/拒绝订单
+	//api/v1.0/orders/:id/status
+	rou.PUT("/api/v1.0/orders/:id/status", handler.PutOrders)
 
 	hd := srv.NewHandler(rou)
 
