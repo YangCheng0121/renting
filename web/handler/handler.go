@@ -28,6 +28,7 @@ import (
 	POSTHOUSES "renting/PostHouses/proto"
 	POSTHOUSESIMAGE "renting/PostHousesImage/proto"
 	POSTLOGIN "renting/PostLogin/proto"
+	POSTORDERS "renting/PostOrders/proto"
 	POSTRET "renting/PostRet/proto"
 	POSTUSERAUTH "renting/PostUserAuth/proto"
 	PUTUSERINFO "renting/PutUserInfo/proto"
@@ -1174,6 +1175,7 @@ func GetIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func GetHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	logs.Info("---------------- 搜索房屋 url：/api/v1.0/houses ----------------")
 
+	// 创建服务
 	service := micro.NewService()
 	service.Init()
 
@@ -1212,6 +1214,65 @@ func GetHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		"errno":  rsp.Errno,
 		"errmsg": rsp.Errmsg,
 		"data":   data,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
+		return
+	}
+}
+
+// 发布订单
+func PostOrders(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- PostOrders  发布订单 /api/v1.0/orders ----------------")
+
+	// 将 post 带过来的数据转化一下
+	body, _ := ioutil.ReadAll(r.Body)
+
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// 调用服务
+	client := POSTORDERS.NewPostOrdersService("go.micro.srv.PostOrders", service.Client())
+
+	rsp, err := client.PostOrders(context.Background(), &POSTORDERS.Request{
+		Sessionid: userLogin.Value,
+		Body:      body,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	/* 得到插入信息房源表的 id */
+	houseIdMap := make(map[string]interface{})
+	houseIdMap["order_id"] = int(rsp.OrderId)
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   houseIdMap,
 	}
 	w.Header().Set("Content-Type", "application/json")
 
