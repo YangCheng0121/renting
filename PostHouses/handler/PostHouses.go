@@ -45,7 +45,7 @@ func (e *PostHouses) PostHouses(ctx context.Context, req *pb.Request, rsp *pb.Re
 	//	"address":"西三旗桥东建材城1号",
 	house.Address = requestMap["address"].(string)
 	//	"room_count":"2",
-	house.Room_count, _ = strconv.Atoi(requestMap["room_count"].(string))
+	house.RoomCount, _ = strconv.Atoi(requestMap["room_count"].(string))
 	//	"acreage":"60",
 	house.Acreage, _ = strconv.Atoi(requestMap["acreage"].(string))
 	//	"unit":"2室1厅",
@@ -58,9 +58,9 @@ func (e *PostHouses) PostHouses(ctx context.Context, req *pb.Request, rsp *pb.Re
 	deposit, _ := strconv.Atoi(requestMap["deposit"].(string))
 	house.Deposit = deposit * 100
 	//	"min_days":"3",
-	house.Min_days, _ = strconv.Atoi(requestMap["min_days"].(string))
+	house.MinDays, _ = strconv.Atoi(requestMap["min_days"].(string))
 	//	"max_days":"0",
-	house.Max_days, _ = strconv.Atoi(requestMap["max_days"].(string))
+	house.MaxDays, _ = strconv.Atoi(requestMap["max_days"].(string))
 
 	// 设施
 	// "facility":["1","2","3","7","12","14","16","17","18","21","22"]

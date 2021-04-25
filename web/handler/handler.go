@@ -16,6 +16,7 @@ import (
 	"regexp"
 	DELETESESSION "renting/DeleteSession/proto"
 	GETAREA "renting/GetArea/proto"
+	GETHOUSEINFO "renting/GetHouseInfo/proto"
 	GETIMAGECD "renting/GetImageCd/proto"
 	GETSESSION "renting/GetSession/proto"
 	GETSMSCD "renting/GetSmsCd/proto"
@@ -889,7 +890,7 @@ func GetUserHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	for _, houseInfo := range houseList {
 		fmt.Printf("house.user = %+v\n", houseInfo.Id)
 		fmt.Printf("house.area = %+v\n", houseInfo.Area)
-		houses = append(houses, houseInfo.To_house_info())
+		houses = append(houses, houseInfo.ToHouseInfo())
 	}
 
 	dataMap := make(map[string]interface{})
@@ -1066,4 +1067,69 @@ func PostHousesImage(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		http.Error(w, err.Error(), 501)
 		return
 	}
+}
+
+// 获取房源详细信息
+func GetHouseInfo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	logs.Info("---------------- 获取房源详细信息 GetHouseInfo  api/v1.0/houses/:id ------------------")
+
+	// 创建服务
+	service := micro.NewService()
+	service.Init()
+
+	// call the backend service
+	client := GETHOUSEINFO.NewGetHouseInfoService("go.micro.srv.GetHouseInfo", service.Client())
+
+	id := ps.ByName("id")
+
+	// 获取sessionId
+	userLogin, err := r.Cookie("userLogin")
+	if err != nil {
+		resp := map[string]interface{}{
+			"errno":  utils.RECODE_SESSIONERR,
+			"errmsg": utils.RecodeText(utils.RECODE_SESSIONERR),
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		// encode and write the response as json
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			http.Error(w, err.Error(), 503)
+			logs.Info(err)
+			return
+		}
+		return
+	}
+
+	rsp, err := client.GetHouseInfo(context.Background(), &GETHOUSEINFO.Request{
+		Sessionid: userLogin.Value,
+		Id:        id,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   nil,
+	}
+	if rsp.Userid > 0 {
+		house := models.House{}
+		_ = json.Unmarshal(rsp.Housedata, &house)
+		dataMap := make(map[string]interface{})
+		dataMap["user_id"] = int(rsp.Userid)
+		dataMap["house"] = house.ToOneHouseDesc()
+		response["data"] = dataMap
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
+		return
+	}
+	return
 }

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package go.micro.srv.GetHouseInfo;
+
+option go_package = "proto;GetHouseInfo";
+
+service GetHouseInfo {
+	rpc GetHouseInfo(Request) returns (Response) {}
+	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
+	rpc PingPong(stream Ping) returns (stream Pong) {}
+}
+
+message Message {
+	string say = 1;
+}
+
+message Request {
+	string Sessionid = 1;
+	string Id = 2 ;
+}
+
+message Response {
+	string Errno = 1;
+	string Errmsg = 2;
+	bytes Housedata = 3;
+	int64 Userid = 4;
+}
+
+message StreamingRequest {
+	int64 count = 1;
+}
+
+message StreamingResponse {
+	int64 count = 1;
+}
+
+message Ping {
+	int64 stroke = 1;
+}
+
+message Pong {
+	int64 stroke = 1;
+}

@@ -50,7 +50,7 @@ func (e *PostLogin) PostLogin(ctx context.Context, req *pb.Request, rsp *pb.Resp
 	}
 
 	// 判断密码是否正确
-	if req.Password != user.Password_hash {
+	if req.Password != user.PasswordHash {
 		rsp.Errno = utils.RECODE_PWDERR
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 		return nil

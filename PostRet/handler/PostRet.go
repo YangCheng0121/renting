@@ -82,7 +82,7 @@ func (e *PostRet) PostRet(ctx context.Context, req *pb.Request, rsp *pb.Response
 	user := models.User{}
 	user.Name = req.Mobile
 	// 密码正常情况下 md5 sha256 sm9  存入数据库的是你加密后的编码不是明文存入
-	user.Password_hash = GetMd5String(req.Password)
+	user.PasswordHash = GetMd5String(req.Password)
 	//user.Password_hash = req.Password
 	user.Mobile = req.Mobile
 

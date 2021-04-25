@@ -76,8 +76,8 @@ func (e *GetUserInfo) GetUserInfo(ctx context.Context, req *pb.Request, rsp *pb.
 	rsp.UserId = int64(user.Id)
 	rsp.Name = user.Name
 	rsp.Mobile = user.Mobile
-	rsp.RealName = user.Real_name
-	rsp.IdCard = user.Id_card
+	rsp.RealName = user.RealName
+	rsp.IdCard = user.IdCard
 
 	return nil
 }

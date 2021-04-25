@@ -79,9 +79,9 @@ func (e *PostHousesImage) PostHousesImage(ctx context.Context, req *pb.Request, 
 	}
 
 	/* 判断index_image_url 是否为空 */
-	if house.Index_image_url == "" {
+	if house.IndexImageUrl == "" {
 		/* 空就把这张图片设置为主图片 */
-		house.Index_image_url = houseImageFile.Path
+		house.IndexImageUrl = houseImageFile.Path
 	}
 
 	/* 将该图片添加到 house 的全部图片当中 */

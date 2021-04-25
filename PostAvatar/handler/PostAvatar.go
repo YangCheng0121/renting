@@ -100,7 +100,7 @@ func (e *PostAvatar) PostAvatar(ctx context.Context, req *pb.Request, rsp *pb.Re
 	logs.Info(id, reflect.TypeOf(id))
 
 	// 创建表对象
-	user := models.User{Id: id, Avatar_url: utils.AddDomain2Url(avatar.Path)}
+	user := models.User{Id: id, AvatarUrl: utils.AddDomain2Url(avatar.Path)}
 	/* 将当前 fastdfs-url 存储到我们当前用户的表中 */
 	o := orm.NewOrm()
 	// 将图片的地址存入表中
