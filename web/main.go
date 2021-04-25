@@ -64,6 +64,8 @@ func main() {
 	rou.GET("/api/v1.0/houses/:id", handler.GetHouseInfo)
 	//首页轮播图请求  Get  Index
 	rou.GET("/api/v1.0/house/index", handler.GetIndex)
+	// 搜索  api/v1.0/houses?aid=5&sd=2017-11-12&ed=2017-11-30&sk=new&p=1
+	rou.GET("/api/v1.0/houses", handler.GetHouses)
 
 	hd := srv.NewHandler(rou)
 

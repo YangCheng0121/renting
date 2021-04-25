@@ -17,6 +17,7 @@ import (
 	DELETESESSION "renting/DeleteSession/proto"
 	GETAREA "renting/GetArea/proto"
 	GETHOUSEINFO "renting/GetHouseInfo/proto"
+	GETHOUSES "renting/GetHouses/proto"
 	GETIMAGECD "renting/GetImageCd/proto"
 	GETINDEX "renting/GetIndex/proto"
 	GETSESSION "renting/GetSession/proto"
@@ -1138,7 +1139,7 @@ func GetHouseInfo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 // 获取首页轮播
 func GetIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	logs.Info("---------------- 获取首页轮播 url：api/v1.0/houses/index ")
+	logs.Info("---------------- 获取首页轮播 url：api/v1.0/houses/index ----------------")
 	service := micro.NewService()
 	service.Init()
 
@@ -1165,6 +1166,58 @@ func GetIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// 将返回数据map发送给前端
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), 503)
+		return
+	}
+}
+
+// 搜索房屋
+func GetHouses(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 搜索房屋 url：/api/v1.0/houses ----------------")
+
+	service := micro.NewService()
+	service.Init()
+
+	// call the backend service
+	client := GETHOUSES.NewGetHousesService("go.micro.srv.GetHouses", service.Client())
+
+	// aid=5&sd=2017-11-12&ed=2017-11-30&sk=new&p=1
+	aid := r.URL.Query()["aid"][0] // aid=5   		 地区编号
+	sd := r.URL.Query()["sd"][0]   // sd=2017-11-1   开始世界
+	ed := r.URL.Query()["ed"][0]   // ed=2017-11-3   结束世界
+	sk := r.URL.Query()["sk"][0]   // sk=new    	 第三栏条件
+	p := r.URL.Query()["p"][0]     // tp=1   		 页数
+
+	rsp, err := client.GetHouses(context.Background(), &GETHOUSES.Request{
+		Aid: aid,
+		Sd:  sd,
+		Ed:  ed,
+		Sk:  sk,
+		P:   p,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	var housesL []interface{}
+	_ = json.Unmarshal(rsp.Houses, &housesL)
+
+	data := map[string]interface{}{}
+	data["current_page"] = rsp.CurrentPage
+	data["houses"] = housesL
+	data["totalPage"] = rsp.TotalPage
+
+	// we want to augment the response
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	// encode and write the response as json
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 501)
 		return
 	}
 }

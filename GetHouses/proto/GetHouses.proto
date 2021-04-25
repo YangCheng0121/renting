@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package go.micro.srv.GetHouses;
+
+option go_package = "proto;GetHouses";
+
+service GetHouses {
+	rpc GetHouses(Request) returns (Response) {}
+	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
+	rpc PingPong(stream Ping) returns (stream Pong) {}
+}
+
+message Message {
+	string say = 1;
+}
+
+message Request {
+	string  Aid = 1;
+	string  Sd = 2;
+	string  Ed = 3;
+	string  Sk = 4;
+	string  P = 5;
+}
+
+message Response {
+	string Errno = 1;
+	string Errmsg = 2;
+	int64 Current_page = 3;
+	bytes Houses = 4;
+	int64 Total_page = 5;
+}
+
+message StreamingRequest {
+	int64 count = 1;
+}
+
+message StreamingResponse {
+	int64 count = 1;
+}
+
+message Ping {
+	int64 stroke = 1;
+}
+
+message Pong {
+	int64 stroke = 1;
+}
