@@ -1,0 +1,201 @@
+consul:
+  #覆盖启动后的执行命令
+  command: agent -server -bootstrap-expect=1  -node=node1 -client 0.0.0.0 -ui -bind=0.0.0.0 -join 127.0.0.2
+  #镜像：镜像名称:版本号
+  image: consul:latest
+  #主机名
+  hostname: "registry"
+  #暴露端口
+  ports:
+  - "18300:8300"
+  - "18400:8400"
+  - "18500:8500"
+  - "18600:53/udp"
+
+#web主页
+web:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 web
+  #镜像构建的dockerfile文件地址
+  build: ./renting-web
+  links:
+  - consul
+  ports:
+  - "12306:8888"
+#获取地区
+getarea:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./GetArea
+  links:
+  - consul
+
+##注册三部曲
+#getimagecd:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetImageCd
+#  links:
+#  - consul
+#
+#getsmscd:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetSmscd
+#  links:
+#  - consul
+#
+#postret:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostRet
+#  links:
+#  - consul
+#
+#getsession:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetSession
+#  links:
+#  - consul
+#
+#postlogin:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostLogin
+#  links:
+#  - consul
+#
+#deletesession:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./DeleteSession
+#  links:
+#  - consul
+#
+#getuserinfo:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserInfo
+#  links:
+#  - consul
+#
+#postavatar:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostAvatar
+#  links:
+#  - consul
+#
+#putuserinfo:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PutUserInfo
+#  links:
+#  - consul
+#
+#getuserauth:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserInfo
+#  links:
+#  - consul
+#
+#postuserauth:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostUserAuth
+#  links:
+#  - consul
+#
+#getuserhouses:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserHouses
+#  links:
+#  - consul
+#
+#posthouses:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostHouses
+#  links:
+#  - consul
+#
+#posthousesimage:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostHousesImage
+#  links:
+#  - consul
+#
+#gethouseinfo:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetHouseInfo
+#  links:
+#  - consul
+#
+#getindex:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetIndex
+#  links:
+#  - consul
+#
+#gethouses:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetHouses
+#  links:
+#  - consul
+#
+#postorders:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./Postorders
+#  links:
+#  - consul
+#
+#getuserorder:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserOrder
+#  links:
+#  - consul
+#
+#putorders:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PutOrders
+#  links:
+#  - consul
+#
+#putcomment :
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PutComment
+#  links:
+#  - consul
