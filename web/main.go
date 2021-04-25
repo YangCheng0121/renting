@@ -62,6 +62,8 @@ func main() {
 	rou.POST("/api/v1.0/houses/:id/images", handler.PostHousesImage)
 	// 请求房源详细信息 GET
 	rou.GET("/api/v1.0/houses/:id", handler.GetHouseInfo)
+	//首页轮播图请求  Get  Index
+	rou.GET("/api/v1.0/house/index", handler.GetIndex)
 
 	hd := srv.NewHandler(rou)
 

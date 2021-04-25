@@ -18,6 +18,7 @@ import (
 	GETAREA "renting/GetArea/proto"
 	GETHOUSEINFO "renting/GetHouseInfo/proto"
 	GETIMAGECD "renting/GetImageCd/proto"
+	GETINDEX "renting/GetIndex/proto"
 	GETSESSION "renting/GetSession/proto"
 	GETSMSCD "renting/GetSmsCd/proto"
 	GETUSERHOUSES "renting/GetUserHouses/proto"
@@ -1115,6 +1116,7 @@ func GetHouseInfo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		"errmsg": rsp.Errmsg,
 		"data":   nil,
 	}
+
 	if rsp.Userid > 0 {
 		house := models.House{}
 		_ = json.Unmarshal(rsp.Housedata, &house)
@@ -1132,4 +1134,37 @@ func GetHouseInfo(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 	return
+}
+
+// 获取首页轮播
+func GetIndex(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	logs.Info("---------------- 获取首页轮播 url：api/v1.0/houses/index ")
+	service := micro.NewService()
+	service.Init()
+
+	client := GETINDEX.NewGetIndexService("go.micro.srv.GetIndex", service.Client())
+
+	rsp, err := client.GetIndex(context.Background(), &GETINDEX.Request{})
+	if err != nil {
+		logs.Info(err)
+		http.Error(w, err.Error(), 502)
+		return
+	}
+
+	var data []interface{}
+	_ = json.Unmarshal(rsp.Max, &data)
+
+	// 创建反馈数据map
+	response := map[string]interface{}{
+		"errno":  rsp.Errno,
+		"errmsg": rsp.Errmsg,
+		"data":   data,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	// 将返回数据map发送给前端
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), 503)
+		return
+	}
 }
