@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	httpServer "github.com/asim/go-micro/plugins/server/http/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
-	"github.com/asim/go-micro/v3/registry"
 	"github.com/asim/go-micro/v3/server"
 	"github.com/asim/go-micro/v3/util/log"
 	"github.com/julienschmidt/httprouter"
@@ -21,7 +21,7 @@ func main() {
 	// create new web Server
 	srv := httpServer.NewServer(
 		server.Name(ServerName),
-		server.Address(":8080"),
+		server.Address(":8888"),
 	)
 
 	// register router
@@ -85,10 +85,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	reg := consul.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Server(srv),
-		micro.Registry(registry.NewRegistry()),
+		micro.Registry(reg),
 	)
 
 	// Initialise service

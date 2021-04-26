@@ -1,3 +1,4 @@
 FROM alpine
-ADD GetArea /GetArea
-ENTRYPOINT [ "/GetArea" ]
+ADD conf /conf
+ADD GetArea-srv /GetArea-srv
+ENTRYPOINT [ "/GetArea-srv" ]

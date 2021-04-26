@@ -1,7 +1,7 @@
 FROM alpine:3.2
 ADD conf /conf
 ADD html /html
-ADD renting-web /renting-web
+ADD web /web
 WORKDIR /
-ENTRYPOINT [ "/renting-web" ]
+ENTRYPOINT [ "/web" ]
 EXPOSE 8888

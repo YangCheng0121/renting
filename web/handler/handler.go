@@ -45,7 +45,6 @@ func GetArea(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	// 创建新的句柄
 	service := micro.NewService()
-
 	// 服务初始化
 	service.Init()
 
