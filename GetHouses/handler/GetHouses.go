@@ -53,7 +53,7 @@ func (e *GetHouses) GetHouses(ctx context.Context, req *pb.Request, rsp *pb.Resp
 	}
 
 	// 计算一下所有房屋/一页现实的数量
-	totalPage := int(num)/models.HOUSE_LIST_PAGE_CAPACITY + 1
+	totalPage := int(num)/models.HouseListPageCapacity + 1
 	housePage := 1
 
 	var houseList []interface{}

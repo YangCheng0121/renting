@@ -47,10 +47,10 @@ type House struct {
 }
 
 //首页最高展示的房屋数量
-var HOME_PAGE_MAX_HOUSES int = 5
+var HomePageMaxHouses int = 5
 
 //房屋列表页面每页显示条目数
-var HOUSE_LIST_PAGE_CAPACITY int = 2
+var HouseListPageCapacity int = 2
 
 //处理房子信息
 func (this *House) ToHouseInfo() interface{} {
@@ -91,7 +91,7 @@ func (this *House) ToOneHouseDesc() interface{} {
 	}
 
 	//房屋图片
-	imgUrls := []string{}
+	var imgUrls []string
 	for _, imgUrl := range this.Images {
 		imgUrls = append(imgUrls, imgUrl.Url)
 	}

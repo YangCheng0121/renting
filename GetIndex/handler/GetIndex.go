@@ -54,7 +54,7 @@ func (e *GetIndex) GetIndex(ctx context.Context, req *pb.Request, rsp *pb.Respon
 
 	// 2 如果缓存没有，需要从数据库中查到房屋列表
 	o := orm.NewOrm()
-	if _, err := o.QueryTable("house").Limit(models.HOME_PAGE_MAX_HOUSES).All(&houses); err == nil {
+	if _, err := o.QueryTable("house").Limit(models.HomePageMaxHouses).All(&houses); err == nil {
 		for _, house := range houses {
 			_, _ = o.LoadRelated(&house, "Area")
 			_, _ = o.LoadRelated(&house, "User")
