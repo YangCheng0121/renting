@@ -7,11 +7,11 @@ init:
 	go get github.com/micro/micro/v3/cmd/protoc-gen-micro
 .PHONY: proto
 proto:
-	protoc --proto_path=. --micro_out=. --go_out=:. proto/GetHouseInfo.proto
+	protoc --proto_path=. --micro_out=. --gofast_out=:. proto/GetHouseInfo.proto
 	
 .PHONY: build
 build:
-	go build -o GetHouseInfo *.go
+	go build -o GetHouseInfo-srv main.go plugin.go
 
 .PHONY: test
 test:

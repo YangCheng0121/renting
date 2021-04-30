@@ -11,7 +11,7 @@ proto:
 	
 .PHONY: build
 build:
-	go build -o GetArea *.go
+	go build -o GetArea-srv main.go plugin.go
 
 .PHONY: test
 test:

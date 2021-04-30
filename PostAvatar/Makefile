@@ -7,11 +7,11 @@ init:
 	go get github.com/micro/micro/v3/cmd/protoc-gen-micro
 .PHONY: proto
 proto:
-	protoc --proto_path=. --micro_out=. --go_out=:. proto/PostAvatar.proto
+	protoc --proto_path=. --micro_out=. --gofast_out=:. proto/PostAvatar.proto
 	
 .PHONY: build
 build:
-	go build -o PostAvatar *.go
+	go build -o PostAvatar-srv main.go plugin.go
 
 .PHONY: test
 test:
