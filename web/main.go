@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ServerName = "go.micro.web.renting" // server name
+	ServerName = "go.micro.web.Renting" // server name
 )
 
 func main() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	"renting/GetImageCd/handler"
 	pb "renting/GetImageCd/proto"
 	"renting/GetImageCd/subscriber"
@@ -14,8 +15,10 @@ const (
 )
 
 func main() {
+	reg := consul.NewRegistry()
 	// Create service
 	service := micro.NewService(
+		micro.Registry(reg),
 		micro.Name(ServerName),
 		micro.Version("latest"),
 	)
