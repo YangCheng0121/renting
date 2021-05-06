@@ -32,22 +32,22 @@ getarea:
   - consul
 
 ##注册三部曲
-#getimagecd:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./GetImageCd
-#  links:
-#  - consul
-#
-#getsmscd:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./GetSmscd
-#  links:
-#  - consul
-#
+getimagecd:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./GetImageCd
+  links:
+  - consul
+
+getsmscd:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./GetSmsCd
+  links:
+  - consul
+
 #postret:
 #  #覆盖启动后的执行命令
 #  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv

@@ -1,3 +1,3 @@
 FROM alpine
-ADD GetHouseInfo /GetHouseInfo
-ENTRYPOINT [ "/GetHouseInfo" ]
+ADD GetHouseInfo-srv /GetHouseInfo-srv
+ENTRYPOINT [ "/GetHouseInfo-srv" ]

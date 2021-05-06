@@ -1,3 +1,5 @@
 FROM alpine
-ADD GetImageCd /GetImageCd
-ENTRYPOINT [ "/GetImageCd" ]
+ADD comic.ttf /comic.ttf
+ADD conf /conf
+ADD GetImageCd-srv /GetImageCd-srv
+ENTRYPOINT [ "/GetImageCd-srv" ]

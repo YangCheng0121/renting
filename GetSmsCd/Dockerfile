@@ -1,3 +1,4 @@
 FROM alpine
-ADD GetSmsCd /GetSmsCd
-ENTRYPOINT [ "/GetSmsCd" ]
+ADD conf /conf
+ADD GetSmsCd-srv /GetSmsCd-srv
+ENTRYPOINT [ "/GetSmsCd-srv" ]
