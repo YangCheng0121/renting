@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	"github.com/asim/go-micro/v3"
-	"github.com/asim/go-micro/v3/logger"
+	"github.com/asim/go-micro/v3/util/log"
 	"renting/PostRet/handler"
 	pb "renting/PostRet/proto"
 	"renting/PostRet/subscriber"
@@ -15,30 +15,33 @@ const (
 
 func main() {
 	reg := consul.NewRegistry()
-	// Create service
+	// New Service
 	service := micro.NewService(
-		micro.Registry(reg),
 		micro.Name(ServerName),
 		micro.Version("latest"),
+		micro.Registry(reg),
 	)
 
-	// Register handler
+	// Initialise service
+	service.Init()
+
+	// Register Handler
 	if err := pb.RegisterPostRetHandler(service.Server(), new(handler.PostRet)); err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// Register Struct as Subscriber
-	if err := micro.RegisterSubscriber(ServerName, service.Server(), new(subscriber.PostRet)); err != nil {
-		logger.Fatal(err)
+	if err := micro.RegisterSubscriber("go.micro.srv.PostRet", service.Server(), new(subscriber.PostRet)); err != nil {
+		log.Fatal(err)
 	}
 
 	// Register Function as Subscriber
-	if err := micro.RegisterSubscriber(ServerName, service.Server(), subscriber.Handler); err != nil {
-		logger.Fatal(err)
+	if err := micro.RegisterSubscriber("go.micro.srv.PostRet", service.Server(), subscriber.Handler); err != nil {
+		log.Fatal(err)
 	}
 
 	// Run service
 	if err := service.Run(); err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 }

@@ -5,19 +5,49 @@ This is the PostRet service
 Generated with
 
 ```
-micro new PostRet
+micro new iHome/PostRet --namespace=go.micro --type=srv
+```
+
+## Getting Started
+
+- [Configuration](#configuration)
+- [Dependencies](#dependencies)
+- [Usage](#usage)
+
+## Configuration
+
+- FQDN: go.micro.srv.PostRet
+- Type: srv
+- Alias: PostRet
+
+## Dependencies
+
+Micro services depend on service discovery. The default is consul.
+
+```
+# install consul
+brew install consul
+
+# run consul
+consul agent -dev
 ```
 
 ## Usage
 
-Generate the proto code
+A Makefile is included for convenience
+
+Build the binary
 
 ```
-make proto
+make build
 ```
 
 Run the service
-
 ```
-micro run .
+./PostRet-srv
+```
+
+Build a docker image
+```
+make docker
 ```

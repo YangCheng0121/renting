@@ -17,9 +17,9 @@ func main() {
 	reg := consul.NewRegistry()
 	// Create service
 	service := micro.NewService(
-		micro.Registry(reg),
 		micro.Name(ServerName),
 		micro.Version("latest"),
+		micro.Registry(reg),
 	)
 
 	// Initialise service

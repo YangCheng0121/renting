@@ -4,7 +4,6 @@ import (
 	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
-	"github.com/asim/go-micro/v3/registry"
 	"renting/GetArea/handler"
 	pb "renting/GetArea/proto"
 	"renting/GetArea/subscriber"
@@ -15,7 +14,7 @@ const (
 )
 
 func main() {
-	reg := consul.NewRegistry(registry.Addrs("127.0.0.1:8500"))
+	reg := consul.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Name(ServerName),

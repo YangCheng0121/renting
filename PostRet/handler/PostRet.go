@@ -28,7 +28,7 @@ func GetMd5String(s string) string {
 
 // Call is a single request handler called via client.Call or the generated client code
 func (e *PostRet) PostRet(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
-	logs.Info("---------------- POST userreg    /api/v1.0/users ----------------")
+	logs.Info("---------------- POST PostRet    /api/v1.0/users ----------------")
 
 	// 初始化错误码
 	rsp.Errno = utils.RECODE_OK
@@ -91,6 +91,7 @@ func (e *PostRet) PostRet(ctx context.Context, req *pb.Request, rsp *pb.Response
 	// 插入数据库
 	id, err := o.Insert(&user)
 	if err != nil {
+		logs.Info(err)
 		rsp.Errno = utils.RECODE_DBERR
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 		return nil

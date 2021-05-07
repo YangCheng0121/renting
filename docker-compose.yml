@@ -1,16 +1,17 @@
 consul:
   #覆盖启动后的执行命令
-  command: agent -server -bootstrap-expect=1  -node=node1 -client 0.0.0.0 -ui -bind=0.0.0.0 -join 127.0.0.2
+  command: agent -server -bootstrap-expect=1 -node=node1 -client 0.0.0.0 -ui -bind=0.0.0.0 -join 127.0.0.2
+  #command: agent -server -bootstrap -rejoin -ui
   #镜像：镜像名称:版本号
   image: consul:latest
   #主机名
   hostname: "registry"
   #暴露端口
   ports:
-  - "18300:8300"
-  - "18400:8400"
-  - "18500:8500"
-  - "18600:53/udp"
+    - "8300:8300"
+    - "8400:8400"
+    - "8500:8500"
+    - "8600:53/udp"
 
 #web主页
 web:
@@ -19,9 +20,10 @@ web:
   #镜像构建的dockerfile文件地址
   build: ./web
   links:
-  - consul
+    - consul
   ports:
-  - "12306:8888"
+    - "8888:8888"
+
 #获取地区
 getarea:
   #覆盖启动后的执行命令
@@ -31,7 +33,7 @@ getarea:
   links:
   - consul
 
-##注册三部曲
+###注册三部曲
 getimagecd:
   #覆盖启动后的执行命令
   command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
@@ -48,30 +50,30 @@ getsmscd:
   links:
   - consul
 
-#postret:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./PostRet
-#  links:
-#  - consul
-#
-#getsession:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./GetSession
-#  links:
-#  - consul
-#
-#postlogin:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./PostLogin
-#  links:
-#  - consul
-#
+postret:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./PostRet
+  links:
+  - consul
+
+getsession:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./GetSession
+  links:
+  - consul
+
+postlogin:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./PostLogin
+  links:
+  - consul
+
 #deletesession:
 #  #覆盖启动后的执行命令
 #  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv

@@ -1,3 +1,4 @@
 FROM alpine
-ADD GetSession /GetSession
-ENTRYPOINT [ "/GetSession" ]
+ADD conf /conf
+ADD GetSession-srv /GetSession-srv
+ENTRYPOINT [ "/GetSession-srv" ]

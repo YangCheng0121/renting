@@ -235,7 +235,7 @@ func GetSession(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	// 存在就发送数据给服务
-	rsp, err := client.GetSession(context.TODO(), &GETSESSION.Request{
+	rsp, err := client.GetSession(context.Background(), &GETSESSION.Request{
 		Sessionid: userLogin.Value,
 	})
 
@@ -304,7 +304,7 @@ func PostRet(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// 连接服务将数据发送给注册服务进行注册
 	client := POSTRET.NewPostRetService("go.micro.srv.PostRet", service.Client())
 
-	rsp, err := client.PostRet(context.TODO(), &POSTRET.Request{
+	rsp, err := client.PostRet(context.Background(), &POSTRET.Request{
 		Mobile:   request["mobile"].(string),
 		Password: request["password"].(string),
 		SmsCode:  request["sms_code"].(string),
