@@ -50,7 +50,7 @@ func (e *PostLogin) PostLogin(ctx context.Context, req *pb.Request, rsp *pb.Resp
 	}
 
 	// 判断密码是否正确
-	if req.Password != user.PasswordHash {
+	if GetMd5String(req.Password) != user.PasswordHash {
 		rsp.Errno = utils.RECODE_PWDERR
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
 		return nil
@@ -58,8 +58,7 @@ func (e *PostLogin) PostLogin(ctx context.Context, req *pb.Request, rsp *pb.Resp
 
 	// 编写redis缓存数据库信息
 	redisConfigMap := map[string]string{
-		"key": utils.G_server_name,
-		//"conn":"127.0.0.1:6379",
+		"key":   utils.G_server_name,
 		"conn":  utils.G_redis_addr + ":" + utils.G_redis_port,
 		"dbNum": utils.G_redis_dbnum,
 	}

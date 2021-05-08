@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"github.com/asim/go-micro/v3/util/log"
 	"github.com/beego/beego/v2/client/cache"
+	_ "github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/garyburd/redigo/redis"
+	_ "github.com/gomodule/redigo/redis"
 	"reflect"
 	"renting/web/utils"
 
