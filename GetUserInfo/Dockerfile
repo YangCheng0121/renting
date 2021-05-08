@@ -1,3 +1,4 @@
 FROM alpine
-ADD GetUserInfo /GetUserInfo
-ENTRYPOINT [ "/GetUserInfo" ]
+ADD conf /conf
+ADD GetUserInfo-srv /GetUserInfo-srv
+ENTRYPOINT [ "/GetUserInfo-srv" ]

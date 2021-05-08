@@ -1,3 +1,4 @@
 FROM alpine
-ADD DeleteDession /DeleteDession
-ENTRYPOINT [ "/DeleteDession" ]
+ADD conf /conf
+ADD DeleteSession-srv /DeleteSession-srv
+ENTRYPOINT [ "/DeleteSession-srv" ]

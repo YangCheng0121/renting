@@ -31,7 +31,7 @@ getarea:
   #镜像构建的dockerfile文件地址
   build: ./GetArea
   links:
-  - consul
+    - consul
 
 ###注册三部曲
 getimagecd:
@@ -40,7 +40,7 @@ getimagecd:
   #镜像构建的dockerfile文件地址
   build: ./GetImageCd
   links:
-  - consul
+    - consul
 
 getsmscd:
   #覆盖启动后的执行命令
@@ -48,7 +48,7 @@ getsmscd:
   #镜像构建的dockerfile文件地址
   build: ./GetSmsCd
   links:
-  - consul
+    - consul
 
 postret:
   #覆盖启动后的执行命令
@@ -56,7 +56,7 @@ postret:
   #镜像构建的dockerfile文件地址
   build: ./PostRet
   links:
-  - consul
+    - consul
 
 getsession:
   #覆盖启动后的执行命令
@@ -64,7 +64,7 @@ getsession:
   #镜像构建的dockerfile文件地址
   build: ./GetSession
   links:
-  - consul
+    - consul
 
 postlogin:
   #覆盖启动后的执行命令
@@ -72,24 +72,24 @@ postlogin:
   #镜像构建的dockerfile文件地址
   build: ./PostLogin
   links:
-  - consul
+    - consul
 
-#deletesession:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./DeleteSession
-#  links:
-#  - consul
-#
-#getuserinfo:
-#  #覆盖启动后的执行命令
-#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
-#  #镜像构建的dockerfile文件地址
-#  build: ./GetUserInfo
-#  links:
-#  - consul
-#
+deletesession:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./DeleteSession
+  links:
+    - consul
+
+getuserinfo:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./GetUserInfo
+  links:
+    - consul
+
 #postavatar:
 #  #覆盖启动后的执行命令
 #  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
