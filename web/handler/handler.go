@@ -484,7 +484,6 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	logs.Info("---------------- GetUserInfo  获取用户信息   /api/v1.0/user ------------------")
 	// 创建服务
 	service := micro.NewService()
-	service.Init()
 
 	// 创建句柄
 	client := GETUSERINFO.NewGetUserInfoService("go.micro.srv.GetUserInfo", service.Client())

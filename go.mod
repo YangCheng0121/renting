@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/afocus/captcha v0.0.0-20191010092841-4bd1f21c8868
 	github.com/asim/go-micro/plugins/registry/consul/v3 v3.0.0-20210425055400-b11a2f17e92c
+	github.com/asim/go-micro/plugins/registry/etcd/v3 v3.0.0-20210506054305-9e9157d878dc
 	github.com/asim/go-micro/plugins/server/http/v3 v3.0.0-20210408173139-0d57213d3f5c
 	github.com/asim/go-micro/v3 v3.5.0
 	github.com/beego/beego/v2 v2.0.2-0.20210413142355-4df8804f5ca7

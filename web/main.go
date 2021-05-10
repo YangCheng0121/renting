@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asim/go-micro/plugins/registry/consul/v3"
+	"github.com/asim/go-micro/plugins/registry/etcd/v3"
 	httpServer "github.com/asim/go-micro/plugins/server/http/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
@@ -85,7 +85,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	reg := consul.NewRegistry()
+	reg := etcd.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Server(srv),

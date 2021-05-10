@@ -95,7 +95,7 @@ func (e *GetSmsCd) GetSmsCd(ctx context.Context, req *pb.Request, rsp *pb.Respon
 	if err != nil {
 		logs.Info("缓存出现问题")
 		rsp.Errno = utils.RECODE_DBERR
-		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		rsp.Errmsg = "验证码失效或者过期，请重新输入"
 		return nil
 	}
 

@@ -56,7 +56,7 @@ func (e *PostRet) PostRet(ctx context.Context, req *pb.Request, rsp *pb.Response
 	if value == nil {
 		logs.Info("获取到缓存数据查询失败", value)
 		rsp.Errno = utils.RECODE_DBERR
-		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		rsp.Errmsg = "图片和短信验证码失效或者过期，请重新获取"
 		return nil
 	}
 

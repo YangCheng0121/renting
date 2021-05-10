@@ -71,7 +71,7 @@ func (e *GetImageCd) GetImageCd(ctx context.Context, req *pb.Request, rsp *pb.Re
 	if err != nil {
 		logs.Info("GetImage()   cache.NewCache err ", err)
 		rsp.Errno = utils.RECODE_DBERR
-		rsp.Errmsg = utils.RecodeText(rsp.Errno)
+		rsp.Errmsg = "图片验证码过期或者失效，请重新获取"
 	}
 	// 验证码进行1个小时缓存
 	_ = bm.Put(context.TODO(), req.Uuid, str, 300*time.Second)

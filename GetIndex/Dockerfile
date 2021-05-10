@@ -1,3 +1,5 @@
 FROM alpine
-ADD GetIndex /GetIndex
-ENTRYPOINT [ "/GetIndex" ]
+ADD conf /conf
+ADD GetIndex-srv /GetIndex-srv
+WORKDIR /
+ENTRYPOINT [ "/GetIndex-srv" ]
