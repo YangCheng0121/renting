@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asim/go-micro/plugins/registry/consul/v3"
+	"github.com/asim/go-micro/plugins/registry/etcd/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
 	"renting/PutComment/handler"
@@ -14,13 +14,16 @@ const (
 )
 
 func main() {
-	reg := consul.NewRegistry()
+	reg := etcd.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Registry(reg),
 		micro.Name(ServerName),
 		micro.Version("latest"),
 	)
+
+	// Initialise service
+	service.Init()
 
 	// Register handler
 	if err := pb.RegisterPutCommentHandler(service.Server(), new(handler.PutComment)); err != nil {

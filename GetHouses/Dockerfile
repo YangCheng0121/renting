@@ -1,3 +1,4 @@
 FROM alpine
-ADD GetHouses /GetHouses
-ENTRYPOINT [ "/GetHouses" ]
+ADD conf /conf
+ADD GetHouses-srv /GetHouses-srv
+ENTRYPOINT [ "/GetHouses-srv" ]

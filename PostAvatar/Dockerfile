@@ -1,3 +1,4 @@
 FROM alpine
-ADD PostAvatar /PostAvatar
-ENTRYPOINT [ "/PostAvatar" ]
+ADD conf /conf
+ADD PostAvatar-srv /PostAvatar-srv
+ENTRYPOINT [ "/PostAvatar-srv" ]

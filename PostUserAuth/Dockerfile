@@ -1,3 +1,4 @@
 FROM alpine
-ADD PostUserAuth /PostUserAuth
-ENTRYPOINT [ "/PostUserAuth" ]
+ADD conf /conf
+ADD PostUserAuth-srv /PostUserAuth-srv
+ENTRYPOINT [ "/PostUserAuth-srv" ]

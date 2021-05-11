@@ -1,3 +1,4 @@
 FROM alpine
-ADD GetUserOrder /GetUserOrder
-ENTRYPOINT [ "/GetUserOrder" ]
+ADD conf /conf
+ADD GetUserOrder-srv /GetUserOrder-srv
+ENTRYPOINT [ "/GetUserOrder-srv" ]

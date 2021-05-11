@@ -1,3 +1,4 @@
 FROM alpine
-ADD PostOrders /PostOrders
-ENTRYPOINT [ "/PostOrders" ]
+ADD conf /conf
+ADD PostOrders-srv /PostOrders-srv
+ENTRYPOINT [ "/PostOrders-srv" ]

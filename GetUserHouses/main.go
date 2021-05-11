@@ -22,6 +22,9 @@ func main() {
 		micro.Registry(reg),
 	)
 
+	// Initialise service
+	service.Init()
+
 	// Register handler
 	if err := pb.RegisterGetUserHousesHandler(service.Server(), new(handler.GetUserHouses)); err != nil {
 		logger.Fatal(err)

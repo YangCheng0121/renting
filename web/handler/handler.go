@@ -484,6 +484,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	logs.Info("---------------- GetUserInfo  获取用户信息   /api/v1.0/user ------------------")
 	// 创建服务
 	service := micro.NewService()
+	service.Init()
 
 	// 创建句柄
 	client := GETUSERINFO.NewGetUserInfoService("go.micro.srv.GetUserInfo", service.Client())
@@ -525,7 +526,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	data["mobile"] = rsp.Mobile
 	data["real_name"] = rsp.RealName
 	data["id_card"] = rsp.IdCard
-	data["avatar_url"] = utils.AddDomain2Url(rsp.AvatarUrl)
+	data["avatar_url"] = rsp.AvatarUrl
 
 	resp := map[string]interface{}{
 		"errno":  rsp.Errno,

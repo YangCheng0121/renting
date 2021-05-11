@@ -1,3 +1,4 @@
 FROM alpine
-ADD PostHousesImage /PostHousesImage
-ENTRYPOINT [ "/PostHousesImage" ]
+ADD conf /conf
+ADD PostHousesImage-srv /PostHousesImage-srv
+ENTRYPOINT [ "/PostHousesImage-srv" ]

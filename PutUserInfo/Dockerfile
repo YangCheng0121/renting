@@ -1,3 +1,4 @@
 FROM alpine
-ADD PutUserInfo /PutUserInfo
-ENTRYPOINT [ "/PutUserInfo" ]
+ADD conf /conf
+ADD PutUserInfo-srv /PutUserInfo-srv
+ENTRYPOINT [ "/PutUserInfo-srv" ]

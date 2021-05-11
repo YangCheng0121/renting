@@ -22,6 +22,9 @@ func main() {
 		micro.Version("latest"),
 	)
 
+	// Initialise service
+	service.Init()
+
 	// Register handler
 	if err := pb.RegisterPutOrdersHandler(service.Server(), new(handler.PutOrders)); err != nil {
 		logger.Fatal(err)

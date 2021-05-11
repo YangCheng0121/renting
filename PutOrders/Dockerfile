@@ -1,3 +1,4 @@
 FROM alpine
-ADD PutOrders /PutOrders
-ENTRYPOINT [ "/PutOrders" ]
+ADD conf /conf
+ADD PutOrders-srv /PutOrders-srv
+ENTRYPOINT [ "/PutOrders-srv" ]

@@ -1,3 +1,4 @@
 FROM alpine
-ADD PutComment /PutComment
-ENTRYPOINT [ "/PutComment" ]
+ADD conf /conf
+ADD PutComment-srv /PutComment-srv
+ENTRYPOINT [ "/PutComment-srv" ]

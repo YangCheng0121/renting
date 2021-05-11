@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asim/go-micro/plugins/registry/consul/v3"
+	"github.com/asim/go-micro/plugins/registry/etcd/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
 	"renting/GetHouses/handler"
@@ -14,13 +14,16 @@ const (
 )
 
 func main() {
-	reg := consul.NewRegistry()
+	reg := etcd.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Name(ServerName),
 		micro.Version("latest"),
 		micro.Registry(reg),
 	)
+
+	// Initialise service
+	service.Init()
 
 	// Register handler
 	if err := pb.RegisterGetHousesHandler(service.Server(), new(handler.GetHouses)); err != nil {

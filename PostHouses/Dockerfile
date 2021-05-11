@@ -1,3 +1,4 @@
 FROM alpine
-ADD PostHouses /PostHouses
-ENTRYPOINT [ "/PostHouses" ]
+ADD conf /conf
+ADD PostHouses-srv /PostHouses-srv
+ENTRYPOINT [ "/PostHouses-srv" ]

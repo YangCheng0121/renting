@@ -78,6 +78,7 @@ func (e *GetUserInfo) GetUserInfo(ctx context.Context, req *pb.Request, rsp *pb.
 	rsp.Mobile = user.Mobile
 	rsp.RealName = user.RealName
 	rsp.IdCard = user.IdCard
+	rsp.AvatarUrl = user.AvatarUrl
 
 	return nil
 }
