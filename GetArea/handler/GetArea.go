@@ -17,7 +17,7 @@ import (
 type GetArea struct {
 }
 
-// Call is a single request handler called via client.Call or the generated client code
+// GetArea Call is a single request handler called via client.Call or the generated client code
 func (e *GetArea) GetArea(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	logs.Info("---------------- GetArea    api/v1.0/areas ----------------")
 
