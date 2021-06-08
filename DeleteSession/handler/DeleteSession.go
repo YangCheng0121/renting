@@ -13,7 +13,7 @@ import (
 
 type DeleteSession struct{}
 
-// DeleteSession Call is a single request handler called via client.Call or the generated client code
+// DeleteSession Call is a single request handler called via client.Call or the generzted client code
 func (e *DeleteSession) DeleteSession(ctx context.Context, req *pb.Request, rsp *pb.Response) error {
 	logs.Info("---------------- DELETE session    /api/v1.0/session ----------------")
 

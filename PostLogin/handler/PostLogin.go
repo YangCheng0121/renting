@@ -45,7 +45,6 @@ func (e *PostLogin) PostLogin(ctx context.Context, req *pb.Request, rsp *pb.Resp
 	if err != nil {
 		rsp.Errno = utils.RECODE_NODATA
 		rsp.Errmsg = utils.RecodeText(rsp.Errno)
-
 		return nil
 	}
 
