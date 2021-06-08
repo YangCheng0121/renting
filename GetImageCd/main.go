@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asim/go-micro/plugins/registry/etcd/v3"
+	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	"renting/GetImageCd/handler"
 	pb "renting/GetImageCd/proto"
 	"renting/GetImageCd/subscriber"
