@@ -1,340 +1,201 @@
-version: "3.0"
+consul:
+  #覆盖启动后的执行命令
+  command: agent -server -bootstrap-expect=1 -ui -bind=0.0.0.0 -client=0.0.0.0
+  #镜像：镜像名称:版本号
+  image: consul:latest
+  #主机名
+  hostname: "registry"
+  #暴露端口
+  ports:
+    - "18300:8300"
+    - "18400:8400"
+    - "18500:8500"
+    - "18600:53/udp"
 
-networks:
-  etcd-net:           # 网络
-    driver: bridge    # 桥接模式
+#web主页
+web:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 web
+  #镜像构建的dockerfile文件地址
+  build: ./web
+  links:
+    - consul
+  ports:
+    - "12306:8888"
+#获取地区
+getarea:
+  #覆盖启动后的执行命令
+  command: --registry_address=registry:8500 --register_interval=5 --register_ttl=10 srv
+  #镜像构建的dockerfile文件地址
+  build: ./GetArea
+  links:
+    - consul
 
-volumes:
-  etcd1_data:         # 挂载到本地的数据卷名
-    driver: local
-  etcd2_data:
-    driver: local
-  etcd3_data:
-    driver: local
-###
-### etcd 其他环境配置见：https://doczhcn.gitbook.io/etcd/index/index-1/configuration
-###
-services:
-  etcd1:
-    image: bitnami/etcd:latest  # 镜像
-    container_name: etcd1       # 容器名 --name
-    restart: always             # 总是重启
-    networks:
-      - etcd-net                # 使用的网络 --network
-    ports:                      # 端口映射 -p
-      - "20000:2379"
-      - "20001:2380"
-    environment:                # 环境变量 --env
-      - ALLOW_NONE_AUTHENTICATION=yes                       # 允许不用密码登录
-      - ETCD_NAME=etcd1                                     # etcd 的名字
-      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd1:2380  # 列出这个成员的伙伴 URL 以便通告给集群的其他成员
-      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380           # 用于监听伙伴通讯的URL列表
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379         # 用于监听客户端通讯的URL列表
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd1:2379        # 列出这个成员的客户端URL，通告给集群中的其他成员
-      - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster             # 在启动期间用于 etcd 集群的初始化集群记号
-      - ETCD_INITIAL_CLUSTER=etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380 # 为启动初始化集群配置
-      - ETCD_INITIAL_CLUSTER_STATE=new                      # 初始化集群状态
-    volumes:
-      - etcd1_data:/bitnami/etcd                            # 挂载的数据卷
-
-  etcd2:
-    image: bitnami/etcd:latest
-    container_name: etcd2
-    restart: always
-    networks:
-      - etcd-net
-    ports:
-      - "20002:2379"
-      - "20003:2380"
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_NAME=etcd2
-      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd2:2380
-      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd2:2379
-      - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster
-      - ETCD_INITIAL_CLUSTER=etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
-      - ETCD_INITIAL_CLUSTER_STATE=new
-    volumes:
-      - etcd2_data:/bitnami/etcd
-
-  etcd3:
-    image: bitnami/etcd:latest
-    container_name: etcd3
-    restart: always
-    networks:
-      - etcd-net
-    ports:
-      - "20004:2379"
-      - "20005:2380"
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_NAME=etcd3
-      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd3:2380
-      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd3:2379
-      - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster
-      - ETCD_INITIAL_CLUSTER=etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
-      - ETCD_INITIAL_CLUSTER_STATE=new
-    volumes:
-      - etcd3_data:/bitnami/etcd
-
-  # 20000-1
-  #web主页
-  web:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20000 --register_interval=5 --register_ttl=10 web
-    #镜像构建的dockerfile文件地址
-    build: ./web
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-    ports:
-      - "18888:8888"
-
-  # 20000-2
-  #获取地区
-  getarea:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20000 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetArea
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20000-3
-  ###注册三部曲
-  getimagecd:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20000 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetImageCd
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20000-4
-  getsmscd:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20000 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetSmsCd
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20000-5
-  postret:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20000 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostRet
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20001-1
-  getsession:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20001 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetSession
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20001-2
-  postlogin:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20001 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostLogin
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20001-3
-  deletesession:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20001 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./DeleteSession
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20001-4
-  getuserinfo:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20001 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetUserInfo
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20001-5
-  postavatar:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20001 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostAvatar
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20002-1
-  putuserinfo:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20002 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PutUserInfo
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20002-2
-  getuserauth:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20002 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetUserInfo
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20002-3
-  postuserauth:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20002 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostUserAuth
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20002-4
-  getuserhouses:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20002 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetUserHouses
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20002-5
-  posthouses:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20002 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostHouses
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20003-1
-  posthousesimage:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20003 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostHousesImage
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20003-2
-  gethouseinfo:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20003 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetHouseInfo
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20003-3
-  getindex:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20003 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetIndex
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20003-4
-  gethouses:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20003 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetHouses
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20003-5
-  postorders:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20003 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PostOrders
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20004-1
-  getuserorder:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20004 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./GetUserOrder
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20004-1
-  putorders:
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20004 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PutOrders
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
-
-  # 20004-2
-  putcomment :
-    #覆盖启动后的执行命令
-    command: --registry_address=192.168.0.65:20004 --register_interval=5 --register_ttl=10 srv
-    #镜像构建的dockerfile文件地址
-    build: ./PutComment
-    links:
-      - etcd1
-      - etcd2
-      - etcd3
+##注册三部曲
+#getimagecd:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetImageCd
+#  links:
+#  - consul
+#
+#getsmscd:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetSmscd
+#  links:
+#  - consul
+#
+#postret:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostRet
+#  links:
+#  - consul
+#
+#getsession:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetSession
+#  links:
+#  - consul
+#
+#postlogin:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostLogin
+#  links:
+#  - consul
+#
+#deletesession:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./DeleteSession
+#  links:
+#  - consul
+#
+#getuserinfo:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserInfo
+#  links:
+#  - consul
+#
+#postavatar:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostAvatar
+#  links:
+#  - consul
+#
+#putuserinfo:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PutUserInfo
+#  links:
+#  - consul
+#
+#getuserauth:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserInfo
+#  links:
+#  - consul
+#
+#postuserauth:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostUserAuth
+#  links:
+#  - consul
+#
+#getuserhouses:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserHouses
+#  links:
+#  - consul
+#
+#posthouses:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostHouses
+#  links:
+#  - consul
+#
+#posthousesimage:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PostHousesImage
+#  links:
+#  - consul
+#
+#gethouseinfo:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetHouseInfo
+#  links:
+#  - consul
+#
+#getindex:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetIndex
+#  links:
+#  - consul
+#
+#gethouses:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetHouses
+#  links:
+#  - consul
+#
+#postorders:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./Postorders
+#  links:
+#  - consul
+#
+#getuserorder:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./GetUserOrder
+#  links:
+#  - consul
+#
+#putorders:
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PutOrders
+#  links:
+#  - consul
+#
+#putcomment :
+#  #覆盖启动后的执行命令
+#  command: --registry_address=registry:8501 --register_interval=5 --register_ttl=10 srv
+#  #镜像构建的dockerfile文件地址
+#  build: ./PutComment
+#  links:
+#  - consul

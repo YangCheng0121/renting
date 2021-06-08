@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asim/go-micro/plugins/registry/etcd/v3"
+	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
 	"renting/PutUserInfo/handler"
@@ -14,7 +14,7 @@ const (
 )
 
 func main() {
-	reg := etcd.NewRegistry()
+	reg := consul.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Name(ServerName),

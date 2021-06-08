@@ -14,7 +14,7 @@ const (
 )
 
 func main() {
-	reg := etcd.NewRegistry()
+	reg := consul.NewRegistry()
 	// New Service
 	service := micro.NewService(
 		micro.Name(ServerName),

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/asim/go-micro/plugins/registry/etcd/v3"
+	"github.com/asim/go-micro/plugins/registry/consul/v3"
 	httpServer "github.com/asim/go-micro/plugins/server/http/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/logger"
@@ -71,12 +71,12 @@ func main() {
 	rou.POST("/api/v1.0/orders", handler.PostOrders)
 	// get 查看房东/租客订单信息请求
 	rou.GET("/api/v1.0/user/orders", handler.GetUserOrder)
-	//put房东同意/拒绝订单
-	//api/v1.0/orders/:id/status
+	// put房东同意/拒绝订单
+	// api/v1.0/orders/:id/status
 	rou.PUT("/api/v1.0/orders/:id/status", handler.PutOrders)
-	//PUT 用户评价订单信请求
-	//api/v1.0/orders/:id/comment
-	//api/v1.0/orders/1/comment
+	// PUT 用户评价订单信请求
+	// api/v1.0/orders/:id/comment
+	// api/v1.0/orders/1/comment
 	rou.PUT("/api/v1.0/orders/:id/comment", handler.PutComment)
 
 	hd := srv.NewHandler(rou)
@@ -85,7 +85,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	reg := etcd.NewRegistry()
+	reg := consul.NewRegistry()
 	// Create service
 	service := micro.NewService(
 		micro.Server(srv),
